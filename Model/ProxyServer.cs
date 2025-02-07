@@ -1,6 +1,6 @@
 ﻿namespace Webcrawler.Model
 {
-    public class Proxy
+    public class ProxyServer
     {
         public string? Ip { get; set; }
         public string? Port { get; set; }
