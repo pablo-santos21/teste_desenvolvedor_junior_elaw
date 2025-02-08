@@ -6,6 +6,8 @@ namespace Webcrawler.Helpers
 {
     public class FileHelper
     {
+        public static string LastSavedJsonFileName { get; private set; } = string.Empty;
+
         public static void SaveProxiesToJson(List<ProxyServer> proxies)
         {
             if (!Directory.Exists("JsonDirectory"))
@@ -14,7 +16,8 @@ namespace Webcrawler.Helpers
             }
 
             string timestamp = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-            string filePath = Path.Combine("JsonDirectory", $"proxies-{timestamp}.json");
+            LastSavedJsonFileName = $"proxies-{timestamp}.json";
+            string filePath = Path.Combine("JsonDirectory", LastSavedJsonFileName);
 
             var options = new JsonSerializerOptions
             {
@@ -27,7 +30,8 @@ namespace Webcrawler.Helpers
 
         public static void SavePageHtml(string htmlContent)
         {
-            File.WriteAllText("page.html", htmlContent);
+            string htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "page.html");
+            File.WriteAllText(htmlPath, htmlContent);
         }
     }
 }

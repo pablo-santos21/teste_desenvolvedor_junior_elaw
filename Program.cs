@@ -1,10 +1,34 @@
-﻿using Webcrawler.Helpers;
-using Webcrawler.Services;
+﻿    using Webcrawler.Helpers;
+    using Webcrawler.Services;
+    using Webcrawler.Database;
+    using Webcrawler.Models;
+    using Microsoft.Extensions.Configuration;
 
-var scraper = new ProxyScraper();
+    var config = ConfigurationLoader.Load();
+    string connectionString = config.GetConnectionString("DefaultConnection");
 
-var proxies = scraper.GetProxiesFromPage("https://proxyservers.pro/proxy/list/order/updated/order_dir/desc");
+    var scraper = new ProxyScraper();
+    var infos = new SaveInfos();
+    var dbService = new DatabaseService(connectionString);
 
-FileHelper.SaveProxiesToJson(proxies);
+    DateTime startTime = DateTime.Now;
 
-Console.WriteLine("Scraping concluído e dados salvos.");
+    var (proxies, totalPages) = scraper.GetProxiesFromPage("https://proxyservers.pro/proxy/list/order/updated/order_dir/desc");
+
+    FileHelper.SaveProxiesToJson(proxies);
+
+    DateTime endTime = DateTime.Now;
+    int totalRows = proxies.Count;
+
+    var saveInfos = new SaveInfos
+    {
+        StartTime = startTime,
+        EndTime = endTime,
+        TotalPages = totalPages,
+        TotalRowsExtracted = totalRows,
+        JsonFileName = FileHelper.LastSavedJsonFileName
+    };
+
+    dbService.SaveExecutionInfo(saveInfos);
+
+    Console.WriteLine("Scraping concluído e dados salvos.");

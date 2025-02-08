@@ -6,17 +6,30 @@ namespace Webcrawler.Services
 {
     public class ProxyScraper
     {
-        public List<ProxyServer> GetProxiesFromPage(string url)
+        public (List<ProxyServer> Proxies, int TotalPages) GetProxiesFromPage(string url)
         {
             var proxies = new List<ProxyServer>();
-            var pageSource = HtmlSelenium.LoadPageSelenium(url);
+            int totalPages = 1;
 
+            var pageSource = HtmlSelenium.LoadPageSelenium(url);
             FileHelper.SavePageHtml(pageSource);
 
             var document = new HtmlDocument();
             document.LoadHtml(pageSource);
 
             var rows = document.DocumentNode.QuerySelectorAll("tr[valign='top']");
+            var paginations = document.DocumentNode.QuerySelector("ul.pagination");
+
+            if (paginations != null)
+            {
+                var page = paginations.QuerySelectorAll("li.page-item a.page-link");
+                    if (page != null && page.Count > 0)
+                    {
+                        totalPages = page
+                            .Select(node => int.TryParse(node.InnerText.Trim(), out int pageNumber) ? pageNumber : 0)
+                            .Max(); 
+                    }
+            }
 
             if (rows != null)
             {
@@ -31,7 +44,7 @@ namespace Webcrawler.Services
                 }
             }
 
-            return proxies;
+            return (proxies, totalPages);
         }
     }
 }
