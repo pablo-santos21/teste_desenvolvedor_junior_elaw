@@ -3,17 +3,26 @@
     using Webcrawler.Database;
     using Webcrawler.Models;
     using Microsoft.Extensions.Configuration;
+using HtmlAgilityPack;
+using System;
 
     var config = ConfigurationLoader.Load();
     string connectionString = config.GetConnectionString("DefaultConnection");
 
-    var scraper = new ProxyScraper();
-    var infos = new SaveInfos();
+    var singlePageScraper = new SinglePageScraper();
+    var totalPage = new TotalPage();
+    var scraper = new ProxyScraper(singlePageScraper, totalPage);
     var dbService = new DatabaseService(connectionString);
 
     DateTime startTime = DateTime.Now;
 
-    var (proxies, totalPages) = scraper.GetProxiesFromPage("https://proxyservers.pro/proxy/list/order/updated/order_dir/desc");
+    var url = "https://proxyservers.pro/proxy/list/order/updated/order_dir/desc";
+    var proxies = scraper.GetProxiesFromPage(url);
+
+    var web = new HtmlWeb();
+    var htmlDocument = web.Load(url);
+
+    int totalPages = totalPage.GetTotalPages(htmlDocument);
 
     FileHelper.SaveProxiesToJson(proxies);
 
