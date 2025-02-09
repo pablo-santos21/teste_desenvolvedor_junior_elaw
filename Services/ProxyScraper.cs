@@ -14,12 +14,11 @@ namespace Webcrawler.Services
             _totalPage = totalPage;
         }
 
-        public List<ProxyServer> GetProxiesFromPage(string baseUrl)
+        public (List<ProxyServer> Proxies, int TotalPages) GetProxiesFromPage(string baseUrl)
         {
             var proxies = new List<ProxyServer>();
 
             var pageSource = HtmlSelenium.LoadPageSelenium(baseUrl);
-            //FileHelper.SavePageHtml(pageSource);
 
             var document = new HtmlDocument();
             document.LoadHtml(pageSource);
@@ -35,7 +34,7 @@ namespace Webcrawler.Services
                 proxies.AddRange(pageProxies);
             }
 
-            return proxies;
+            return (proxies, totalPages);
         }
     }
 }
