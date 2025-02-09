@@ -17,12 +17,7 @@ using System;
     DateTime startTime = DateTime.Now;
 
     var url = "https://proxyservers.pro/proxy/list/order/updated/order_dir/desc";
-    var proxies = scraper.GetProxiesFromPage(url);
-
-    var web = new HtmlWeb();
-    var htmlDocument = web.Load(url);
-
-    int totalPages = totalPage.GetTotalPages(htmlDocument);
+    var (proxies, totalPages) = scraper.GetProxiesFromPage(url);
 
     FileHelper.SaveProxiesToJson(proxies);
 
