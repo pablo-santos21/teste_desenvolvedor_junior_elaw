@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Webcrawler.Helpers;
 using Webcrawler.Model;
 
 namespace Webcrawler.Services
@@ -17,6 +18,7 @@ namespace Webcrawler.Services
         public (List<ProxyServer> Proxies, int TotalPages) GetProxiesFromPage(string baseUrl)
         {
             var proxies = new List<ProxyServer>();
+            var allPageContents = new List<string>();
 
             var pageSource = HtmlSelenium.LoadPageSelenium(baseUrl);
 
@@ -30,9 +32,14 @@ namespace Webcrawler.Services
                 string pageUrl = $"{baseUrl}/page/{page}";
                 Console.WriteLine($"Acessando página: {pageUrl}");
 
+                string pageContent = HtmlSelenium.LoadPageSelenium(pageUrl);
+                allPageContents.Add(pageContent);
+
                 var pageProxies = _scraper.GetProxiesFromSinglePage(pageUrl);
                 proxies.AddRange(pageProxies);
             }
+
+            FileHelper.SavePageHtml(allPageContents);
 
             return (proxies, totalPages);
         }
