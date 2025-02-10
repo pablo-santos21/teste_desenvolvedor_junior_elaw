@@ -1,37 +1,48 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
-using Webcrawler.Model;
+﻿    using System.Text.Encodings.Web;
+    using System.Text.Json;
+    using Webcrawler.Model;
 
-namespace Webcrawler.Helpers
-{
-    public class FileHelper
+    namespace Webcrawler.Helpers
     {
-        public static string LastSavedJsonFileName { get; private set; } = string.Empty;
-
-        public static void SaveProxiesToJson(List<ProxyServer> proxies)
+        public class FileHelper
         {
-            if (!Directory.Exists("JsonDirectory"))
+            public static string LastSavedJsonFileName { get; private set; } = string.Empty;
+
+            public static void SaveProxiesToJson(List<ProxyServer> proxies)
             {
-                Directory.CreateDirectory("JsonDirectory");
+                if (!Directory.Exists("JsonDirectory"))
+                {
+                    Directory.CreateDirectory("JsonDirectory");
+                }
+
+                string timestamp = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+                LastSavedJsonFileName = $"proxies-{timestamp}.json";
+                string filePath = Path.Combine("JsonDirectory", LastSavedJsonFileName);
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                };
+
+                File.WriteAllText(filePath, JsonSerializer.Serialize(proxies, options));
             }
 
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-            LastSavedJsonFileName = $"proxies-{timestamp}.json";
-            string filePath = Path.Combine("JsonDirectory", LastSavedJsonFileName);
-
-            var options = new JsonSerializerOptions
+            public static void SavePageHtml(List<string> pageContents)
             {
-                WriteIndented = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            };
+                string directoryPath = "PagesDirectory";
 
-            File.WriteAllText(filePath, JsonSerializer.Serialize(proxies, options));
+                if (Directory.Exists(directoryPath))
+                {
+                    Directory.Delete(directoryPath, true);
+                }
+                    Directory.CreateDirectory(directoryPath);
+
+                for(int i = 0; i < pageContents.Count; i++)
+                {
+                    string filePath = Path.Combine(directoryPath, $"page-{i + 1}.html");
+                    File.WriteAllText(filePath, pageContents[i]);
+                }
         }
-
-        public static void SavePageHtml(string htmlContent)
-        {
-            string htmlPath = Path.Combine(Directory.GetCurrentDirectory(), "page.html");
-            File.WriteAllText(htmlPath, htmlContent);
         }
     }
-}
