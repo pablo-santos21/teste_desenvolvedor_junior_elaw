@@ -34,4 +34,6 @@ var saveInfos = new SaveInfos
 
 dbService.SaveExecutionInfo(saveInfos);
 
+Logger.Log($"Scraping concluído. Total de proxies extraídos: {totalRows}. Tempo total: {(endTime - startTime).TotalSeconds} segundos.");
+
 Console.WriteLine("Scraping concluído e dados salvos.");
